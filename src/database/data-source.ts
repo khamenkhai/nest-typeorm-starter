@@ -1,8 +1,7 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import 'dotenv/config';
 
-// migrations example => npm run migration:generate -- src/database/migrations/InitialTest
-
+// migrations example => npm run migration:generate --name=UpdateNameColumn
 export const dataSourceOption: DataSourceOptions = {
   type: 'postgres',
   host: process.env.DB_HOST,
