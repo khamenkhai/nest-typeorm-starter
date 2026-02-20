@@ -15,6 +15,9 @@ export class TodoEntity {
     @Column({ default: false })
     isCompleted: boolean;
 
+    @Column({ nullable: true })
+    image: string;
+
     @ManyToOne(() => UserEntity, (user) => user.id)
     user: UserEntity;
 

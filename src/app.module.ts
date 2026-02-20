@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TodoModule } from './modules/todo/todo.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { FileUploadModule } from './modules/file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -35,13 +36,18 @@ import { APP_GUARD } from '@nestjs/core';
       ],
     }),
     TypeOrmModule.forRoot(dataSourceOption),
-    AuthModule, UsersModule, TodoModule],
+    AuthModule,
+    UsersModule,
+    TodoModule,
+    FileUploadModule
+  ],
   controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-    AppService],
+    AppService
+  ],
 })
 export class AppModule { }
