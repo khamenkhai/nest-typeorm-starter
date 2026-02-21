@@ -28,7 +28,6 @@ export class TodoService {
             skip: (page - 1) * limit,
         });
 
-
         const totalPages = Math.ceil(totalItems / limit);
 
         return {

@@ -2,12 +2,24 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import helmet from 'helmet';
+import * as path from 'path';
 
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true, // Buffer logs until Winston is ready
+  });
+
+  // --- Logger ---
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+
+
+  // --- Static Assets ---
+  app.useStaticAssets(path.join(process.cwd(), 'public'));
 
   // --- Environment & Constants ---
   const port = process.env.PORT ?? 3000;
@@ -15,7 +27,6 @@ async function bootstrap() {
   const globalPrefix = 'api';
 
   // --- Middleware & Security ---
-  app.use(helmet());
   app.enableCors({
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -9,13 +9,15 @@ import { ConfigModule } from '@nestjs/config';
 import { TodoModule } from './modules/todo/todo.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { FileUploadModule } from './modules/file-upload/file-upload.module';
+import { LoggerModule } from './common/logger/logger.module';
+import { HttpLoggerMiddleware } from './common/logger/http-logger.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    LoggerModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -39,7 +41,6 @@ import { FileUploadModule } from './modules/file-upload/file-upload.module';
     AuthModule,
     UsersModule,
     TodoModule,
-    FileUploadModule
   ],
   controllers: [AppController],
   providers: [
@@ -50,4 +51,8 @@ import { FileUploadModule } from './modules/file-upload/file-upload.module';
     AppService
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}

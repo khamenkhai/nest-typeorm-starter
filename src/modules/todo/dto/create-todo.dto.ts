@@ -18,5 +18,6 @@ export class CreateTodoDto {
     isCompleted?: boolean;
 
     @ApiProperty({ type: 'string', format: 'binary', required: false })
+    @IsOptional()
     image?: any;
 }
