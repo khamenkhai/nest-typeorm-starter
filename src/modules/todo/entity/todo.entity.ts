@@ -15,6 +15,9 @@ export class TodoEntity {
     @Column({ default: false })
     isCompleted: boolean;
 
+    @Column({ default: false })
+    isDeleted: boolean;
+
     @Column({ nullable: true })
     image: string;
 

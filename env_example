@@ -1,5 +1,5 @@
 # Database Configuration
-DB_HOST=localhost
+DB_HOST=localhost // localhost for local and "db" for docker
 DB_PORT=5432
 DB_USER=postgres
 DB_PASS=postgres
