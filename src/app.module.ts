@@ -11,13 +11,24 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from './common/logger/logger.module';
 import { HttpLoggerMiddleware } from './common/logger/http-logger.middleware';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
+    /// TO LOAD ENVIRONMENT VARIABLES
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     LoggerModule,
+    /// TO SERVE STATIC FILES
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public', 'uploads'),
+      serveRoot: '/files',
+      exclude: ['/api/(.*)'],
+    }),
+    /// TO LIMIT THE NUMBER OF REQUESTS PER USER
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -37,19 +48,23 @@ import { HttpLoggerMiddleware } from './common/logger/http-logger.middleware';
         },
       ],
     }),
+    /// TO CONNECT TO DATABASE
     TypeOrmModule.forRoot(dataSourceOption),
     AuthModule,
     UsersModule,
     TodoModule,
+    UploadModule,
   ],
-  controllers: [AppController],
   providers: [
     {
+      /// TO APPLY THROTTLER GUARD TO ALL ROUTES
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
     AppService
   ],
+  controllers: [AppController],
+
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

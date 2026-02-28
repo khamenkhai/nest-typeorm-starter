@@ -21,8 +21,15 @@ const diskStorageConfig = diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const originalName = file.originalname.replace(/\s+/g, '_');
-        cb(null, `${uniqueSuffix}-${originalName}`);
+
+        const fileExt = file.originalname.split('.').pop();
+        const nameWithoutExt = file.originalname.split('.').slice(0, -1).join('.');
+
+        const sanitizedName = nameWithoutExt
+            .replace(/[^a-zA-Z0-9]/g, '_')
+            .replace(/_{2,}/g, '_');
+
+        cb(null, `${uniqueSuffix}-${sanitizedName}.${fileExt}`);
     },
 });
 

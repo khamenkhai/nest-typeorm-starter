@@ -13,13 +13,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/config/multer.config';
 import { GetUser } from 'src/modules/auth/decorators/get-user.decorator';
 import { AuthenticatedUser } from 'src/modules/auth/types/auth-request.interface';
+import { UploadService } from '../upload/upload.service';
 
 @ApiTags('Todo')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('todo')
 export class TodoController {
-    constructor(private readonly todoService: TodoService) { }
+    constructor(private readonly todoService: TodoService, private readonly uploadService: UploadService) { }
 
     @ApiOperation({ summary: 'Create a new todo' })
     @Post()
@@ -76,15 +77,22 @@ export class TodoController {
 
         },
     })
+
     @Post('with-image')
     @UseInterceptors(FileInterceptor('image', multerOptions))
-    async createWithImage(@UploadedFile() file: Express.Multer.File, @Body() createTodoDto: CreateTodoDto, @Request() req) {
+    async createWithImage(
+        @UploadedFile() file: Express.Multer.File,
+        @Body() createTodoDto: CreateTodoDto,
+        @Request() req) {
         if (file) {
-            // store filename in DTO so service persists it to the entity
             (createTodoDto as any).image = file.filename;
         }
+        console.log(file);
+
+        this.uploadService.uploadFile(file.filename, file.buffer);
 
         const data = await this.todoService.create(createTodoDto, req.user);
+
         return ApiResponse.success('Todo with image created successfully', data);
     }
 }
